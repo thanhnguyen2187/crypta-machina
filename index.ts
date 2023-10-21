@@ -1,7 +1,14 @@
 import express from 'express'
+import 'dotenv/config'
+import { createLogger } from './logging.ts'
 
 const app = express()
-const port = 3001
+const port = Number.parseInt(process.env.PORT ?? '21870')
+const logger = createLogger({
+  get date(): string {
+    return new Date().toISOString()
+  },
+})
 
 app.get('/', (req, res) => {
   res.send({message: 'hello world'})
@@ -21,5 +28,8 @@ app.delete('/api/v1/snippet/:id', (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  logger.info({
+    message: `Application started`,
+    port,
+  })
 })

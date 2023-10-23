@@ -1,6 +1,7 @@
 import express from 'express'
 import 'dotenv/config'
 import { createLogger } from './logging.ts'
+import { createFolder, folderExisted } from './persistence.ts'
 
 const app = express()
 const port = Number.parseInt(process.env.PORT ?? '21870')
@@ -46,9 +47,18 @@ app.delete('/api/v1/snippet/:id', (req, res) => {
   res.send({message: 'deleted one snippet'})
 })
 
-app.listen(port, () => {
-  logger.info({
-    message: `Application started`,
+app.listen(port, async () => {
+  const appLogger = logger.extend({
     port,
+    dataFolder,
   })
+  appLogger.info({
+    message: 'Crypta Machina started!'
+  })
+  if (!await folderExisted(dataFolder)) {
+    await createFolder(dataFolder)
+    appLogger.info({
+      message: 'Data folder did not exist and was created.'
+    })
+  }
 })

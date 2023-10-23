@@ -16,7 +16,25 @@ app.get('/api/v1/alive', (req, res) => {
 })
 
 app.get('/api/v1/snippets', (req, res) => {
-  res.send({message: 'fetched all snippets'})
+  const handleLogger = logger.extend({path: '/api/v1/snippets'})
+  let { folder } = req.query
+  if (typeof folder === 'undefined') {
+    folder = 'default'
+  } else if (typeof folder !== 'string') {
+    const errObj = {
+      message: 'invalid folder in query param',
+      expected: [
+        'arbitrary-string',
+        undefined,
+      ],
+      got: folder,
+    }
+    handleLogger.error(errObj)
+    res.status(400).send(errObj)
+    return
+  }
+
+  res.send({message: `fetched all snippets from folder ${folder}`})
 })
 
 app.put('/api/v1/snippet/:id', (req, res) => {

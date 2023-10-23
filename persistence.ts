@@ -1,9 +1,9 @@
 import * as fs from 'fs-extra'
 
-export async function folderExisted(path: string) {
+export async function directoryExisted(path: string) {
   return await fs.exists(path)
 }
 
-export async function createFolder(folderPath: string) {
-  await fs.mkdirp(folderPath)
+export async function createDirectory(path: string) {
+  await fs.mkdirp(path)
 }

@@ -1,11 +1,11 @@
 import express from 'express'
 import 'dotenv/config'
 import { createLogger } from './logging.ts'
-import { createFolder, folderExisted } from './persistence.ts'
+import { createDirectory, directoryExisted } from './persistence.ts'
 
 const app = express()
 const port = Number.parseInt(process.env.PORT ?? '21870')
-const dataFolder = process.env.DATA_FOLDER ?? '~/.config/crypta'
+const dataDirectory = process.env.DATA_DIRECTORY ?? '~/.config/crypta'
 const logger = createLogger({
   get date(): string {
     return new Date().toISOString()
@@ -50,15 +50,15 @@ app.delete('/api/v1/snippet/:id', (req, res) => {
 app.listen(port, async () => {
   const appLogger = logger.extend({
     port,
-    dataFolder,
+    dataDirectory,
   })
   appLogger.info({
     message: 'Crypta Machina started!'
   })
-  if (!await folderExisted(dataFolder)) {
-    await createFolder(dataFolder)
+  if (!await directoryExisted(dataDirectory)) {
+    await createDirectory(dataDirectory)
     appLogger.info({
-      message: 'Data folder did not exist and was created.'
+      message: 'Data directory did not exist and was created.'
     })
   }
 })

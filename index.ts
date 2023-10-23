@@ -11,8 +11,8 @@ const logger = createLogger({
   },
 })
 
-app.get('/', (req, res) => {
-  res.send({message: 'hello world'})
+app.get('/api/v1/alive', (req, res) => {
+  res.send({alive: true})
 })
 
 app.get('/api/v1/snippets', (req, res) => {

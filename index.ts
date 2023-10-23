@@ -4,6 +4,7 @@ import { createLogger } from './logging.ts'
 
 const app = express()
 const port = Number.parseInt(process.env.PORT ?? '21870')
+const dataFolder = process.env.DATA_FOLDER ?? '~/.config/crypta'
 const logger = createLogger({
   get date(): string {
     return new Date().toISOString()

@@ -46,11 +46,11 @@ export async function readFilePaths(directoryPath: string): Promise<string[]> {
 }
 
 export async function readSnippets(folderPath: string) {
-  await fse.ensureDir(folderPath)
   const snippetPaths = await readFilePaths(folderPath)
   const snippets = []
   for (const path of snippetPaths) {
-    const snippet = (await fs.readFile(path)).toJSON()
+    const snippetText = await fs.readFile(path, {encoding: 'utf-8'})
+    const snippet = JSON.parse(snippetText)
     snippets.push(snippet)
   }
   return snippets

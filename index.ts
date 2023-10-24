@@ -16,7 +16,7 @@ app.get('/api/v1/alive', (req, res) => {
   res.send({alive: true})
 })
 
-app.get('/api/v1/snippets', (req, res) => {
+app.get('/api/v1/snippets', async (req, res) => {
   const handleLogger = logger.extend({path: '/api/v1/snippets'})
   let { folder } = req.query
   if (typeof folder === 'undefined') {
@@ -35,7 +35,12 @@ app.get('/api/v1/snippets', (req, res) => {
     return
   }
 
-  const snippets = readSnippets(`${dataDirectory}/${folder}`)
+  const snippets = await readSnippets(`${dataDirectory}/${folder}`)
+  handleLogger.info({
+    dataDirectory,
+    folder,
+    message: `fetched ${snippets.length} snippet(s) successfully`,
+  })
   res.send({
     data: snippets
   })
@@ -56,12 +61,12 @@ app.listen(port, async () => {
     dataDirectory,
   })
   appLogger.info({
-    message: 'Crypta Machina started!'
+    message: 'Crypta Machina started'
   })
   if (!await directoryExisted(dataDirectory)) {
     await createDirectory(dataDirectory)
     appLogger.info({
-      message: 'Data directory did not exist and was created.'
+      message: 'data directory did not exist and was created'
     })
   }
 })

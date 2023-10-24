@@ -1,11 +1,11 @@
 import express from 'express'
 import 'dotenv/config'
 import { createLogger } from './logging.ts'
-import { createDirectory, directoryExisted } from './persistence.ts'
+import { createDirectory, directoryExisted, readSnippets } from './persistence.ts'
 
 const app = express()
 const port = Number.parseInt(process.env.PORT ?? '21870')
-const dataDirectory = process.env.DATA_DIRECTORY ?? '~/.config/crypta'
+const dataDirectory = process.env.DATA_DIRECTORY ?? './data'
 const logger = createLogger({
   get date(): string {
     return new Date().toISOString()
@@ -35,7 +35,10 @@ app.get('/api/v1/snippets', (req, res) => {
     return
   }
 
-  res.send({message: `fetched all snippets from folder ${folder}`})
+  const snippets = readSnippets(`${dataDirectory}/${folder}`)
+  res.send({
+    data: snippets
+  })
 })
 
 app.put('/api/v1/snippet/:id', (req, res) => {

@@ -25,7 +25,7 @@ app.get('/api/v1/alive', (req, res) => {
 })
 
 app.get('/api/v1/snippets', async (req, res) => {
-  const handleLogger = logger.extend({
+  let handleLogger = logger.extend({
     path: '/api/v1/snippets',
     method: 'GET',
   })
@@ -45,12 +45,11 @@ app.get('/api/v1/snippets', async (req, res) => {
     res.status(400).send(errObj)
     return
   }
+  handleLogger = handleLogger.extend({folder})
 
-  const folderPath = `${dataDirectory}/${folder}`
-  const snippets = await readSnippets(folderPath)
+  const snippets = await readSnippets(dataDirectory, folder)
   handleLogger.info({
     dataDirectory,
-    folder,
     message: `fetched ${snippets.length} snippet(s) successfully`,
   })
   res.send({

@@ -15,7 +15,13 @@ const logger = createLogger({
 })
 
 app.get('/api/v1/alive', (req, res) => {
+  const handleLogger = logger.extend({
+    path: '/api/v1/alive',
+    method: 'GET',
+    fromIP: req.ip,
+  })
   res.send({alive: true})
+  handleLogger.info({})
 })
 
 app.get('/api/v1/snippets', async (req, res) => {

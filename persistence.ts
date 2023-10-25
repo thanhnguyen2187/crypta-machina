@@ -61,6 +61,7 @@ export async function upsertSnippet(
   folder: string,
   snippet: Snippet,
 ) {
+  // TODO: validate `snippet`
   const snippetPath = [
     dataDirectory,
     folder,

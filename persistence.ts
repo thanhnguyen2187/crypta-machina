@@ -74,3 +74,16 @@ export async function upsertSnippet(
   await fse.ensureFile(snippetPath)
   await fs.writeFile(snippetPath, JSON.stringify(snippet))
 }
+
+export async function deleteSnippet(
+  dataDirectory: string,
+  folder: string,
+  id: string,
+) {
+  const snippetPath = [
+    dataDirectory,
+    folder,
+    `${id}.json`,
+  ].join('/')
+  await fs.rm(snippetPath)
+}

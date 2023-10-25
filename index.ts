@@ -1,7 +1,7 @@
 import express from 'express'
 import 'dotenv/config'
 import { createLogger } from './logging.ts'
-import { createDirectory, directoryExisted, readSnippets } from './persistence.ts'
+import { createDirectory, directoryExisted, readSnippets, upsertSnippet } from './persistence.ts'
 
 const app = express()
 const port = Number.parseInt(process.env.PORT ?? '21870')
@@ -17,7 +17,10 @@ app.get('/api/v1/alive', (req, res) => {
 })
 
 app.get('/api/v1/snippets', async (req, res) => {
-  const handleLogger = logger.extend({path: '/api/v1/snippets'})
+  const handleLogger = logger.extend({
+    path: '/api/v1/snippets',
+    method: 'GET',
+  })
   let { folder } = req.query
   if (typeof folder === 'undefined') {
     folder = 'default'
@@ -35,7 +38,8 @@ app.get('/api/v1/snippets', async (req, res) => {
     return
   }
 
-  const snippets = await readSnippets(`${dataDirectory}/${folder}`)
+  const folderPath = `${dataDirectory}/${folder}`
+  const snippets = await readSnippets(folderPath)
   handleLogger.info({
     dataDirectory,
     folder,
@@ -46,9 +50,35 @@ app.get('/api/v1/snippets', async (req, res) => {
   })
 })
 
-app.put('/api/v1/snippet/:id', (req, res) => {
-  const { id } = req.params
-  res.send({message: 'snippet id ' + id})
+app.put('/api/v1/snippet', async (req, res) => {
+  let { folder } = req.query
+  const handleLogger = logger.extend({
+    path: `/api/v1/snippet`,
+    method: 'PUT',
+  })
+  if (typeof folder === 'undefined') {
+    folder = 'default'
+  } else if (typeof folder !== 'string') {
+    const errObj = {
+      message: 'invalid folder in query param',
+      expected: [
+        'arbitrary-string',
+        undefined,
+      ],
+      got: folder,
+    }
+    handleLogger.error(errObj)
+    res.status(400).send(errObj)
+    return
+  }
+
+  handleLogger.info({body: req.body})
+  res.send(req.body)
+
+  // const folderPath = `${dataDirectory}/${folder}`
+  // await upsertSnippet(folderPath, req.body)
+  //
+  // res.send({message: 'snippet id ' + req.body.id})
 })
 
 app.delete('/api/v1/snippet/:id', (req, res) => {

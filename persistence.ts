@@ -55,3 +55,8 @@ export async function readSnippets(folderPath: string) {
   }
   return snippets
 }
+
+export async function upsertSnippet(folderPath: string, snippet: Snippet) {
+  const snippetPath = `${folderPath}/${snippet.id}`
+  await fs.writeFile(snippetPath, JSON.stringify(snippet))
+}

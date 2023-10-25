@@ -1,7 +1,7 @@
 import express, { json } from 'express'
 import 'dotenv/config'
 import { createLogger } from './logging.ts'
-import { createDirectory, directoryExisted, readSnippets, upsertSnippet } from './persistence.ts'
+import { createDirectory, deleteSnippet, directoryExisted, readSnippets, upsertSnippet } from './persistence.ts'
 
 const app = express()
 app.use(json())
@@ -95,8 +95,41 @@ app.put('/api/v1/snippet', async (req, res) => {
   }
 })
 
-app.delete('/api/v1/snippet/:id', (req, res) => {
-  res.send({message: 'deleted one snippet'})
+app.delete('/api/v1/snippet/:id', async (req, res) => {
+  const { id } = req.params
+  let { folder } = req.query
+  let handleLogger = logger.extend({
+    path: `/api/v1/snippet/:id`,
+    id,
+    method: 'DELETE',
+  })
+  if (typeof folder === 'undefined') {
+    folder = 'default'
+  } else if (typeof folder !== 'string') {
+    const errObj = {
+      message: 'invalid folder in query param',
+      expected: [
+        'arbitrary-string',
+        undefined,
+      ],
+      got: folder,
+    }
+    handleLogger.error(errObj)
+    res.status(400).send(errObj)
+    return
+  }
+  handleLogger.extend({folder})
+
+  try {
+    await deleteSnippet(dataDirectory, folder, id)
+    const message = 'deleted snippet successfully'
+    handleLogger.info({message})
+    res.send({message})
+  } catch (error: any) {
+    const message = 'failed deleting snippet'
+    handleLogger.error({message, error})
+    res.status(500).send({message})
+  }
 })
 
 app.listen(port, async () => {

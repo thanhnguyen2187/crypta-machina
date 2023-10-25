@@ -45,7 +45,11 @@ export async function readFilePaths(directoryPath: string): Promise<string[]> {
   return filePaths
 }
 
-export async function readSnippets(folderPath: string) {
+export async function readSnippets(dataDirectory: string, folder: string) {
+  const folderPath = [
+    dataDirectory,
+    folder,
+  ].join('/')
   const snippetPaths = await readFilePaths(folderPath)
   const snippets = []
   for (const path of snippetPaths) {

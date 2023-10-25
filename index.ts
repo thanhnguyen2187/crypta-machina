@@ -58,9 +58,11 @@ app.get('/api/v1/snippets', async (req, res) => {
 })
 
 app.put('/api/v1/snippet', async (req, res) => {
+  const { id } = req.body
   let { folder } = req.query
-  const handleLogger = logger.extend({
+  let handleLogger = logger.extend({
     path: `/api/v1/snippet`,
+    id,
     method: 'PUT',
   })
   if (typeof folder === 'undefined') {
@@ -78,15 +80,13 @@ app.put('/api/v1/snippet', async (req, res) => {
     res.status(400).send(errObj)
     return
   }
+  handleLogger = handleLogger.extend({folder})
 
   try {
     await upsertSnippet(dataDirectory, folder, req.body)
-    const successObj = {
-      message: 'upsert snippet successfully',
-      id: req.body.id,
-    }
-    handleLogger.info(successObj)
-    res.send(successObj)
+    const message = 'upsert snippet successfully'
+    handleLogger.info({message})
+    res.send({message})
   } catch (error: any) {
     const message = 'failed upserting snippet'
     handleLogger.error({message, error})

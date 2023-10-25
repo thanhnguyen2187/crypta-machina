@@ -56,7 +56,16 @@ export async function readSnippets(folderPath: string) {
   return snippets
 }
 
-export async function upsertSnippet(folderPath: string, snippet: Snippet) {
-  const snippetPath = `${folderPath}/${snippet.id}`
+export async function upsertSnippet(
+  dataDirectory: string,
+  folder: string,
+  snippet: Snippet,
+) {
+  const snippetPath = [
+    dataDirectory,
+    folder,
+    `${snippet.id}.json`,
+  ].join('/')
+  await fse.ensureFile(snippetPath)
   await fs.writeFile(snippetPath, JSON.stringify(snippet))
 }

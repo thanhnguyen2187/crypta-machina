@@ -1,9 +1,11 @@
-import express from 'express'
+import express, { json } from 'express'
 import 'dotenv/config'
 import { createLogger } from './logging.ts'
 import { createDirectory, directoryExisted, readSnippets, upsertSnippet } from './persistence.ts'
 
 const app = express()
+app.use(json())
+
 const port = Number.parseInt(process.env.PORT ?? '21870')
 const dataDirectory = process.env.DATA_DIRECTORY ?? './data'
 const logger = createLogger({
@@ -72,13 +74,19 @@ app.put('/api/v1/snippet', async (req, res) => {
     return
   }
 
-  handleLogger.info({body: req.body})
-  res.send(req.body)
-
-  // const folderPath = `${dataDirectory}/${folder}`
-  // await upsertSnippet(folderPath, req.body)
-  //
-  // res.send({message: 'snippet id ' + req.body.id})
+  try {
+    await upsertSnippet(dataDirectory, folder, req.body)
+    const successObj = {
+      message: 'upsert snippet successfully',
+      id: req.body.id,
+    }
+    handleLogger.info(successObj)
+    res.send(successObj)
+  } catch (error: any) {
+    const message = 'failed upserting snippet'
+    handleLogger.error({message, error})
+    res.status(500).send({message})
+  }
 })
 
 app.delete('/api/v1/snippet/:id', (req, res) => {

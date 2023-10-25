@@ -19,5 +19,8 @@
   },
   "scripts": {
     "dev": "nodemon index.ts"
+  },
+  "nodemonConfig": {
+    "ignore": ["data/**"]
   }
 }

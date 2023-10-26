@@ -1,4 +1,5 @@
 import express, { json } from 'express'
+import cors from 'cors'
 import 'dotenv/config'
 import { createLogger } from './logging.ts'
 import {
@@ -12,6 +13,7 @@ import {
 
 const app = express()
 app.use(json())
+app.use(cors())
 
 const port = Number.parseInt(process.env.PORT ?? '21870')
 const dataDirectory = process.env.DATA_DIRECTORY ?? './data'

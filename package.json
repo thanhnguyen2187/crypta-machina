@@ -23,6 +23,8 @@
     "dev": "nodemon index.ts"
   },
   "nodemonConfig": {
-    "ignore": ["data/**"]
+    "ignore": [
+      "data/**"
+    ]
   }
 }

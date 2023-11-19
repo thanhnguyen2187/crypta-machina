@@ -1,6 +1,7 @@
 import express, { json } from 'express'
 import cors from 'cors'
 import 'dotenv/config'
+
 import { createLogger } from './logging.ts'
 import {
   createDirectory,
@@ -10,18 +11,26 @@ import {
   readSnippets,
   upsertSnippet
 } from './persistence.ts'
-
-const app = express()
-app.use(json())
-app.use(cors())
+import expressBasicAuth from 'express-basic-auth'
 
 const port = Number.parseInt(process.env.PORT ?? '21870')
 const dataDirectory = process.env.DATA_DIRECTORY ?? './data'
+const authentication = process.env.AUTHENTICATION ?? 'admin:admin'
+const [username, password] = authentication.split(':')
 const logger = createLogger({
   get date(): string {
     return new Date().toISOString()
   },
 })
+
+const app = express()
+app.use(json())
+app.use(cors())
+app.use(expressBasicAuth({
+  users: {[username]: password},
+  challenge: true,
+  realm: 'crypta-machina',
+}))
 
 app.get('/api/v1/alive', (req, res) => {
   const handleLogger = logger.extend({
@@ -183,7 +192,8 @@ app.listen(port, async () => {
     dataDirectory,
   })
   appLogger.info({
-    message: 'Crypta Machina started'
+    message: 'Crypta Machina started',
+    username,
   })
   if (!await directoryExisted(dataDirectory)) {
     await createDirectory(dataDirectory)
